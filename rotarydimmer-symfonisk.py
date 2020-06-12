@@ -32,17 +32,21 @@ def rotary_dimmer_handler(event):
 
     # Use a larger delta when the knob is being turned faster
     if value in ('rotate_left', 'rotate_right'):
+        # Lookup table of (rotate action time_delta threshold, dimmer delta to use)
+        delta_table = (
+            (0.25, 10),
+            (0.7, 5),
+            (1, 2)
+        )
         current_time = time.time()
         time_delta = current_time - last_update.get(event.itemName, 0)
         last_update[event.itemName] = current_time
-        if time_delta < 0.25:
-            delta = 10
-        elif time_delta < 0.7:
-            delta = 5
-        elif time_delta < 1:
-            delta = 2
+        for threshold, delta in delta_table:
+            if time_delta < threshold:
+                break
         else:
             delta = 1
+
         rotary_dimmer_handler.log.debug('timedelta: {}, delta: {}'.format(time_delta, delta))
 
         if value == 'rotate_right': 
